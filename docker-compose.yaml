@@ -1,0 +1,31 @@
+version: "3"
+services:
+  rabbitmq-service:
+    build: ./RabbitmqService
+    container_name: RabbitmqService
+    ports:
+      # - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: test
+      RABBITMQ_DEFAULT_PASS: 12345678
+    volumes:
+      - ./RabbitmqService/data:/var/lib/rabbitmq
+
+  bot-service:
+    build: ./BotService
+    container_name: BotService
+    env_file:
+      - ./BotService/.env
+    restart: always
+    depends_on:
+      - "rabbitmq-service"
+
+  scraping-service:
+    build: ./ScrapingService
+    container_name: ScrapingService
+    env_file:
+      - ./ScrapingService/.env
+    restart: always
+    depends_on:
+      - "rabbitmq-service"
